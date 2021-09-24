@@ -498,6 +498,11 @@
   resolved "https://registry.yarnpkg.com/@snowpack/web-test-runner-plugin/-/web-test-runner-plugin-0.2.2.tgz#3ff24c67d1af425e9cf7dd1a5fd2e07a89242e97"
   integrity sha512-I7KC8BAcgRWZAg53w7Uq3UDY9hcn1ZGvmA+MjPqvgQXvKbwXfH0+T1nyPQmKUgYR1If99Vk4GnFscDZtaGbZCg==
 
+"@stitches/react@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@stitches/react/-/react-1.2.0.tgz#cdb69256d76bcb4753417d59bc42da21fd603ba1"
+  integrity sha512-GuMh610X3oJB2pdywARg1jccjAEvrDbq4iwy1SernR/4o1FX5SOTJZIjC4CquagZQjL00KFV8Cwfq/12FS6aBg==
+
 "@szmarczak/http-timer@^4.0.5":
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/@szmarczak/http-timer/-/http-timer-4.0.6.tgz#b4a914bb62e7c272d4e5989fe4440f812ab1d807"
@@ -2795,6 +2800,11 @@ istanbul-reports@^3.0.2:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
 
+jotai@^1.3.5:
+  version "1.3.5"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-1.3.5.tgz#69f0fe5c3afa13fc41672e4bd2a4118e90c3667e"
+  integrity sha512-MsRZ6uZRwYxF7kbh/H6+VerMlt2AR0gZYTlzNisH7gKB23HPUidXN91mn5V/pBcYUT18eHoo+Bap2kTTfQj10w==
+
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
@@ -3889,6 +3899,18 @@ react-refresh@^0.9.0:
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.9.0.tgz#71863337adc3e5c2f8a6bfddd12ae3bfe32aafbf"
   integrity sha512-Gvzk7OZpiqKSkxsQvO/mbTN1poglhmAV7gR/DdIrRrSMXraRQQlfikRJOr3Nb9GTMPC5kof948Zy6jJZIFtDvQ==
+
+react-router-dom@^6.0.0-beta.4:
+  version "6.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.0.0-beta.4.tgz#9cc9fb57bca3d5548b297ae8101efcdcc68dd903"
+  integrity sha512-yppoRR8S7FxNMG6OGFn9DPJBPLsjeIuQa7GYnkRlgOSTBSPhAQpD6z7rvRzZnesQ9r6W+ibD9RvnqTcna4w/Pg==
+  dependencies:
+    react-router "6.0.0-beta.4"
+
+react-router@6.0.0-beta.4:
+  version "6.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.0.0-beta.4.tgz#e35a440b36fd07a2ac854e1f1f176b56a777793a"
+  integrity sha512-48JRRZJOwmfOKM12Tv3WjmNkVb2NpSEgDTWC4+MEJaud0+eyLJxqy62CKzOydMlk7hrfRFpC/elUYSZAuyx3qA==
 
 react@^17.0.2:
   version "17.0.2"
