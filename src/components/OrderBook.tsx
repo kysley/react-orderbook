@@ -1,7 +1,13 @@
 import React, { useEffect } from 'react';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
-import { asksAtom, bidsAtom, updateAsksAtom, updateBidsAtom } from '../state';
+import {
+  asksAtom,
+  bidsAtom,
+  spreadAtom,
+  updateAsksAtom,
+  updateBidsAtom,
+} from '../state';
 import { socket } from '../utils/websocket';
 
 export const BookBids = () => {
@@ -14,6 +20,8 @@ export const BookBids = () => {
           <span style={{ color: 'green' }}>{bid[0]}</span>
           {'-'}
           <span>{bid[1]}</span>
+          {'-'}
+          <span>{bid[2]}</span>
         </div>
       ))}
     </div>
@@ -30,6 +38,8 @@ export const BookAsks = () => {
           <span style={{ color: 'red' }}>{ask[0]}</span>
           {'-'}
           <span>{ask[1]}</span>
+          {'-'}
+          <span>{ask[2]}</span>
         </div>
       ))}
     </div>
@@ -39,6 +49,7 @@ export const BookAsks = () => {
 export const OrderBook: React.FunctionComponent<{}> = () => {
   const updateBids = useUpdateAtom(updateBidsAtom);
   const updateAsks = useUpdateAtom(updateAsksAtom);
+  const spread = useAtomValue(spreadAtom);
 
   useEffect(() => {
     let amt = -2;
@@ -50,7 +61,7 @@ export const OrderBook: React.FunctionComponent<{}> = () => {
         updateBids(jsonData.bids);
         updateAsks(jsonData.asks);
       }
-      if (amt > 0 && amt < 1500) {
+      if (amt > 0 && amt < 15) {
         const jsonData = JSON.parse(e.data);
 
         if (jsonData?.bids.length > 0) {
@@ -65,9 +76,12 @@ export const OrderBook: React.FunctionComponent<{}> = () => {
   }, []);
 
   return (
-    <main style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-      <BookBids />
-      <BookAsks />
-    </main>
+    <>
+      {spread}
+      <main style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+        <BookBids />
+        <BookAsks />
+      </main>
+    </>
   );
 };

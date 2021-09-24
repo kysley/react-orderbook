@@ -1,14 +1,18 @@
 import { atom } from 'jotai';
 
-export const bidsAtom = atom<[number | string, number][]>([]);
-export const asksAtom = atom<[number | string, number][]>([]);
+type OrderBookItem = [number, number, number];
+type OrderBookData = OrderBookItem[];
+type OrderBookAction = [number, number][];
+
+export const bidsAtom = atom<OrderBookData>([]);
+export const asksAtom = atom<OrderBookData>([]);
 
 export const updateBidsAtom = atom(
   null,
-  (get, set, action: [number, number][]) => {
+  (get, set, action: OrderBookAction) => {
     const currentBids = get(bidsAtom);
 
-    const nextBids = Object.fromEntries(currentBids);
+    const nextBids: Record<string, number> = Object.fromEntries(currentBids);
 
     action.forEach((bid) => {
       const [price, size] = bid;
@@ -32,16 +36,28 @@ export const updateBidsAtom = atom(
       asArray.length = 25;
     }
 
-    set(bidsAtom, asArray);
+    let prevTotal = 0;
+    const bidsWithTotal: OrderBookData = asArray.map((bid, idx) => {
+      const [price, size] = bid;
+      const numericPrice = Number(price);
+      prevTotal += size;
+      if (idx === 0) {
+        return [numericPrice, size, size];
+      } else {
+        return [numericPrice, size, prevTotal];
+      }
+    });
+
+    set(bidsAtom, bidsWithTotal);
   },
 );
 
 export const updateAsksAtom = atom(
   null,
-  (get, set, action: [number, number][]) => {
+  (get, set, action: OrderBookAction) => {
     const currentAsks = get(asksAtom);
 
-    const nextAsks = Object.fromEntries(currentAsks);
+    const nextAsks: Record<string, number> = Object.fromEntries(currentAsks);
 
     action.forEach((bid) => {
       const [price, size] = bid;
@@ -59,12 +75,31 @@ export const updateAsksAtom = atom(
       return Number(a[0]) - Number(b[0]);
     });
 
-    // cull extra bids before after sorting
+    // cull extra asks before after sorting
     if (asArray.length >= 26) {
-      console.log('too many bids');
+      console.log('too many asks');
       asArray.length = 25;
     }
 
-    set(asksAtom, asArray);
+    let prevTotal = 0;
+    const asksWithTotal: OrderBookData = asArray.map((ask, idx) => {
+      const [price, size] = ask;
+      const numericPrice = Number(price);
+      prevTotal += size;
+      if (idx === 0) {
+        return [numericPrice, size, size];
+      } else {
+        return [numericPrice, size, prevTotal];
+      }
+    });
+
+    set(asksAtom, asksWithTotal);
   },
 );
+
+export const spreadAtom = atom((get) => {
+  const topAsk = get(asksAtom)[0] || [0, 0];
+  const topBid = get(bidsAtom)[0] || [0, 0];
+
+  return topAsk[0] - topBid[0];
+});
