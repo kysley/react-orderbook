@@ -10,6 +10,7 @@ import {
 } from '../../state';
 import { socket } from '../../utils/websocket';
 import { BookAsks, BookBids } from '.';
+import { styled } from '../../utils/stitches.conf';
 
 export const OrderBook: React.FunctionComponent<{}> = () => {
   const updateBids = useUpdateAtom(updateBidsAtom);
@@ -40,14 +41,51 @@ export const OrderBook: React.FunctionComponent<{}> = () => {
 
   return (
     <>
-      {spread}
-      <main style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-        <BookBids />
-        <BookAsks />
-      </main>
+      <OrderBookContainer>
+        <OrderBookHeader>Order BOok Spread: {spread}</OrderBookHeader>
+        <BidsContainer>
+          <OrderBookColumns>
+            {COLUMN_NAMES.map((colName) => (
+              <h4>{colName}</h4>
+            ))}
+
+            {COLUMN_NAMES.map((colName) => (
+              <h4>{colName}</h4>
+            ))}
+          </OrderBookColumns>
+          <BookBids />
+          <BookAsks />
+        </BidsContainer>
+      </OrderBookContainer>
     </>
   );
 };
+
+export const OrderBookContainer = styled('section', {
+  display: 'grid',
+  gridTemplateAreas: `
+    'title'
+    'bids'
+  `,
+  gridTemplateRows: '1fr 9fr',
+  backgroundColor: 'DarkViolet',
+});
+
+export const BidsContainer = styled('div', {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+});
+
+export const OrderBookHeader = styled('header', {});
+
+const OrderBookColumns = styled('div', {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(6, 1fr)',
+  textAlign: 'right',
+  gridColumn: 'span 2',
+});
+
+const COLUMN_NAMES = ['total', 'size', 'price'];
 
 // useDraggable = () => {
 //   return {
