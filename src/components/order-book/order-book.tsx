@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
 import {
@@ -8,61 +8,44 @@ import {
   updateAsksAtom,
   updateBidsAtom,
 } from '../../state';
-import { socket } from '../../utils/websocket';
 import { BookAsks, BookBids } from '.';
 import { styled } from '../../utils/stitches.conf';
+import { useOrderBookSocket } from '../../hooks/';
 
 export const OrderBook: React.FunctionComponent<{}> = () => {
-  const updateBids = useUpdateAtom(updateBidsAtom);
-  const updateAsks = useUpdateAtom(updateAsksAtom);
+  const { connected, reconnect } = useOrderBookSocket();
   const spread = useAtomValue(spreadAtom);
 
-  useEffect(() => {
-    let amt = -2;
-    socket.onmessage = (e) => {
-      if (amt === 0) {
-        const jsonData = JSON.parse(e.data);
-        updateBids(jsonData.bids);
-        updateAsks(jsonData.asks);
-      }
-      if (amt > 0 && amt < 1500) {
-        const jsonData = JSON.parse(e.data);
-
-        if (jsonData?.bids.length > 0) {
-          updateBids(jsonData.bids);
-        }
-        if (jsonData?.asks.length > 0) {
-          updateAsks(jsonData.asks);
-        }
-      }
-      amt++;
-    };
-  }, []);
-
   return (
-    <>
-      <OrderBookContainer>
+    <OrderBookContainer connected={connected}>
+      {connected !== 1 && (
+        <OrderBookReconnect>
+          <button onClick={reconnect}>reconnect</button>
+        </OrderBookReconnect>
+      )}
+      <>
         <OrderBookHeader>Order BOok Spread: {spread}</OrderBookHeader>
         <BidsContainer>
           <OrderBookColumns>
             {COLUMN_NAMES.map((colName) => (
-              <h4>{colName}</h4>
+              <h4 key={colName}>{colName}</h4>
             ))}
 
             {COLUMN_NAMES.map((colName) => (
-              <h4>{colName}</h4>
+              <h4 key={colName}>{colName}</h4>
             ))}
           </OrderBookColumns>
           <BookBids />
           <BookAsks />
         </BidsContainer>
-      </OrderBookContainer>
-    </>
+      </>
+    </OrderBookContainer>
   );
 };
 
 export const OrderBookContainer = styled('section', {
   display: 'grid',
+  position: 'relative',
   gridTemplateAreas: `
     'title'
     'bids'
@@ -74,6 +57,13 @@ export const OrderBookContainer = styled('section', {
 export const BidsContainer = styled('div', {
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
+});
+
+export const OrderBookReconnect = styled('div', {
+  position: 'absolute',
+  height: '100%',
+  width: '100%',
+  background: 'Black',
 });
 
 export const OrderBookHeader = styled('header', {});
