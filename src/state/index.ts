@@ -1,8 +1,8 @@
 import { atom } from 'jotai';
 
-type OrderBookItem = [number, number, number];
-type OrderBookData = OrderBookItem[];
-type OrderBookAction = [number, number][];
+export type OrderBookItem = [number, number, number];
+export type OrderBookData = OrderBookItem[];
+export type OrderBookAction = [number, number][];
 
 export const bidsAtom = atom<OrderBookData>([]);
 export const asksAtom = atom<OrderBookData>([]);
