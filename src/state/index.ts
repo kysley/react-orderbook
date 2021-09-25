@@ -32,7 +32,7 @@ export const updateBidsAtom = atom(
 
     // cull extra bids before after sorting
     if (asArray.length >= 26) {
-      console.log('too many bids');
+      // console.log('too many bids');
       asArray.length = 25;
     }
 
@@ -77,7 +77,7 @@ export const updateAsksAtom = atom(
 
     // cull extra asks before after sorting
     if (asArray.length >= 26) {
-      console.log('too many asks');
+      // console.log('too many asks');
       asArray.length = 25;
     }
 
@@ -102,4 +102,16 @@ export const spreadAtom = atom((get) => {
   const topBid = get(bidsAtom)[0] || [0, 0];
 
   return topAsk[0] - topBid[0];
+});
+
+export const contractAtom = atom('PI_XBTUSD');
+
+export const subscribeMessageAtom = atom((get) => {
+  const contract = get(contractAtom);
+  return `{"event":"subscribe","feed":"book_ui_1","product_ids":["${contract}"]}`;
+});
+
+export const unsubscribeMessageAtom = atom((get) => {
+  const contract = get(contractAtom);
+  return `{"event":"unsubscribe","feed":"book_ui_1","product_ids":["${contract}"]}`;
 });
