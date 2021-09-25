@@ -7,44 +7,9 @@ import {
   spreadAtom,
   updateAsksAtom,
   updateBidsAtom,
-} from '../state';
-import { socket } from '../utils/websocket';
-
-export const BookBids = () => {
-  const bids = useAtomValue(bidsAtom);
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {bids.map((bid) => (
-        <div key={bid[0]}>
-          <span style={{ color: 'green' }}>{bid[0]}</span>
-          {'-'}
-          <span>{bid[1]}</span>
-          {'-'}
-          <span>{bid[2]}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-export const BookAsks = () => {
-  const asks = useAtomValue(asksAtom);
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {asks.map((ask) => (
-        <div key={ask[0]}>
-          <span style={{ color: 'red' }}>{ask[0]}</span>
-          {'-'}
-          <span>{ask[1]}</span>
-          {'-'}
-          <span>{ask[2]}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
+} from '../../state';
+import { socket } from '../../utils/websocket';
+import { BookAsks, BookBids } from '.';
 
 export const OrderBook: React.FunctionComponent<{}> = () => {
   const updateBids = useUpdateAtom(updateBidsAtom);
@@ -55,13 +20,11 @@ export const OrderBook: React.FunctionComponent<{}> = () => {
     let amt = -2;
     socket.onmessage = (e) => {
       if (amt === 0) {
-        console.log('hey');
         const jsonData = JSON.parse(e.data);
-        // console.log(jsonData);
         updateBids(jsonData.bids);
         updateAsks(jsonData.asks);
       }
-      if (amt > 0 && amt < 15) {
+      if (amt > 0 && amt < 1500) {
         const jsonData = JSON.parse(e.data);
 
         if (jsonData?.bids.length > 0) {
@@ -85,3 +48,15 @@ export const OrderBook: React.FunctionComponent<{}> = () => {
     </>
   );
 };
+
+// useDraggable = () => {
+//   return {
+//     styles: {},
+
+//   }
+// }
+
+// use css grid to define a grid space
+// each 25px dragged is like 1fr, simple math from there
+// boom, its resizeable
+// corner drag ... maybe drag+drop
