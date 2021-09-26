@@ -1,22 +1,23 @@
 import React from 'react';
 import { useAtomValue } from 'jotai/utils';
+
 import { asksAtom } from '../../state';
 import { BookItem } from './book-item';
+import { styled } from '../../utils/stitches.conf';
 
 export const BookAsks = () => {
   const asks = useAtomValue(asksAtom);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-      }}
-    >
+    <BookAsksContainer>
       {asks.map((ask) => (
-        <BookItem data={ask} kind="ask" />
+        <BookItem data={ask} kind="ask" key={ask[0]} />
       ))}
-    </div>
+    </BookAsksContainer>
   );
 };
+
+const BookAsksContainer = styled('div', {
+  display: 'flex',
+  flexDirection: 'column',
+});

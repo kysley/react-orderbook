@@ -3,26 +3,35 @@ import React from 'react';
 import type { OrderBookItem } from '../../state';
 import { styled } from '../../utils/stitches.conf';
 
-type BidProps = {
+type BookItemProps = {
   kind: 'bid' | 'ask';
   data: OrderBookItem;
 };
 
-export const BookItem: React.FunctionComponent<BidProps> = ({ kind, data }) => {
+export const BookItem: React.FunctionComponent<BookItemProps> = ({
+  kind,
+  data,
+}) => {
   return (
-    <BookItemP flipped={kind === 'bid'}>
+    <BookItemContainer flipped={kind === 'bid'}>
       {data.map((value, idx) => (
-        <BookItemSpan kind={kind} type={idx}>
-          {value}
-        </BookItemSpan>
+        <BookItemWrapper colored={idx === 0} kind={kind}>
+          <span>
+            {idx === 0 ? (
+              <>{value.toLocaleString('en-us', { minimumFractionDigits: 2 })}</>
+            ) : (
+              <>{value.toLocaleString('en-us')}</>
+            )}
+          </span>
+        </BookItemWrapper>
       ))}
-    </BookItemP>
+    </BookItemContainer>
   );
 };
 
-export const BookItemP = styled('p', {
-  display: 'flex',
-  justifyContent: 'space-between',
+const BookItemContainer = styled('div', {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr 1fr',
   margin: 0,
 
   variants: {
@@ -34,31 +43,34 @@ export const BookItemP = styled('p', {
   },
 });
 
-//kind = which color
-//type = if colored
-export const BookItemSpan = styled('span', {
-  color: 'White',
+const BookItemWrapper = styled('div', {
   textAlign: 'right',
-  flex: 1,
+  width: '100%',
   variants: {
-    type: {
-      '0': {
-        color: 'white',
+    colored: {
+      false: {
+        color: '$text',
       },
-      '1': {
-        color: 'white !important', // this is bad
-      },
-      '2': {
-        color: 'white !important', // this is bad
+      true: {
+        color: 'inherit',
       },
     },
     kind: {
-      ask: {
-        color: 'red',
-      },
       bid: {
-        color: 'green',
+        color: '$green',
+      },
+      ask: {
+        color: '$red',
       },
     },
   },
+  compoundVariants: [
+    {
+      colored: false,
+      kind: 'ask',
+      css: {
+        color: '$text',
+      },
+    },
+  ],
 });
