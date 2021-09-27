@@ -1,15 +1,18 @@
 import React from 'react';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
-import { spreadAtom } from '../../state';
+import { contractAtom, spreadAtom, updateContractAtom } from '../../state';
 import { BookAsks, BookBids } from '.';
-import { css, styled } from '../../utils/stitches.conf';
+import { styled } from '../../utils/stitches.conf';
 import { useOrderBookSocket } from '../../hooks/';
-import { Button } from '../Button';
+import { Button } from '../button';
+import { CONTRACT_DICT } from '../../utils/constants';
 
 export const OrderBook: React.FunctionComponent<{}> = () => {
   const { connected, reconnect } = useOrderBookSocket();
+  const swapContract = useUpdateAtom(updateContractAtom);
   const spread = useAtomValue(spreadAtom);
+  const contract = useAtomValue(contractAtom);
 
   return (
     <OrderBookContainer>
@@ -18,34 +21,39 @@ export const OrderBook: React.FunctionComponent<{}> = () => {
           <Button onClick={reconnect}>Reconnect to Order Book</Button>
         </OrderBookReconnect>
       )}
-      <OrderBookHeader>Order Book</OrderBookHeader>
-      <OrderBookSpread>Spread {spread}</OrderBookSpread>
+      <OrderBookHeader>Order Book ({CONTRACT_DICT[contract]})</OrderBookHeader>
+      <OrderBookSpread>
+        Spread: {spread.value} ({spread.percent}%)
+      </OrderBookSpread>
       <OrderBookColumns>
         {COLUMN_NAMES.map((colName) => (
           <h4 key={colName}>{colName}</h4>
         ))}
 
-        {COLUMN_NAMES.map((colName) => (
+        {COLUMN_NAMES_REVERSE.map((colName) => (
           <h4 key={colName}>{colName}</h4>
         ))}
       </OrderBookColumns>
       <BookBids />
       <BookAsks />
       <OrderBookActions>
-        <Button>Toggle Feed</Button>
+        <Button onClick={() => swapContract()}>Toggle Feed</Button>
       </OrderBookActions>
     </OrderBookContainer>
   );
 };
 
 const OrderBookContainer = styled('section', {
+  minHeight: '650px',
   display: 'grid',
   position: 'relative',
+  border: '$border200 1px solid',
   gridTemplateAreas:
-    '"name spread " "columns columns " "bids asks " "actions actions "',
+    '"name spread " "columns columns " "bids asks" "actions actions "',
   backgroundColor: '$bg',
   color: '$text',
   '@bp1': {
+    maxHeight: '100vh',
     gridTemplateAreas: `
     'name'
     'columns'
@@ -74,6 +82,7 @@ const OrderBookReconnect = styled('div', {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
+  zIndex: 2,
 });
 
 const OrderBookActions = styled('div', {
@@ -81,7 +90,7 @@ const OrderBookActions = styled('div', {
   justifyContent: 'center',
   alignItems: 'center',
   gridArea: 'actions',
-  paddingTop: '1em',
+  padding: '1em',
 });
 
 const OrderBookHeader = styled('header', {
@@ -109,15 +118,4 @@ const OrderBookColumns = styled('div', {
 });
 
 const COLUMN_NAMES = ['total', 'size', 'price'];
-
-// useDraggable = () => {
-//   return {
-//     styles: {},
-
-//   }
-// }
-
-// use css grid to define a grid space
-// each 25px dragged is like 1fr, simple math from there
-// boom, its resizeable
-// corner drag ... maybe drag+drop
+const COLUMN_NAMES_REVERSE = COLUMN_NAMES.reverse();

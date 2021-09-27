@@ -1,4 +1,5 @@
 import React from 'react';
+import { animated } from 'react-spring';
 
 import type { OrderBookItem } from '../../state';
 import { styled } from '../../utils/stitches.conf';
@@ -6,38 +7,51 @@ import { styled } from '../../utils/stitches.conf';
 type BookItemProps = {
   kind: 'bid' | 'ask';
   data: OrderBookItem;
+  highest: number;
 };
 
 export const BookItem: React.FunctionComponent<BookItemProps> = ({
   kind,
   data,
+  highest,
 }) => {
   return (
     <BookItemContainer flipped={kind === 'bid'}>
-      {data.map((value, idx) => (
-        <BookItemWrapper colored={idx === 0} kind={kind}>
-          <span>
-            {idx === 0 ? (
-              <>{value.toLocaleString('en-us', { minimumFractionDigits: 2 })}</>
-            ) : (
-              <>{value.toLocaleString('en-us')}</>
-            )}
-          </span>
-        </BookItemWrapper>
-      ))}
+      <BookItemWrapper colored kind={kind}>
+        <span>
+          {data[0].toLocaleString('en-us', { minimumFractionDigits: 2 })}
+        </span>
+      </BookItemWrapper>
+      <BookItemWrapper kind={kind}>
+        <span>{data[1].toLocaleString('en-us')}</span>
+      </BookItemWrapper>
+      <BookItemWrapper kind={kind}>
+        <span>{data[2].toLocaleString('en-us')}</span>
+      </BookItemWrapper>
+      <BookItemDepth
+        style={{
+          width: `${(data[2] / highest) * 100}%`,
+          translateZ: 0,
+        }}
+        kind={kind}
+      />
     </BookItemContainer>
   );
 };
 
 const BookItemContainer = styled('div', {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr 1fr',
-  margin: 0,
+  display: 'flex',
+  height: '25px',
+  position: 'relative',
+  overflow: 'hidden',
 
   variants: {
     flipped: {
       true: {
-        flexDirection: 'row-reverse',
+        direction: 'rtl',
+        '@bp1': {
+          direction: 'ltr',
+        },
       },
     },
   },
@@ -46,6 +60,7 @@ const BookItemContainer = styled('div', {
 const BookItemWrapper = styled('div', {
   textAlign: 'right',
   width: '100%',
+  zIndex: 1,
   variants: {
     colored: {
       false: {
@@ -72,5 +87,35 @@ const BookItemWrapper = styled('div', {
         color: '$text',
       },
     },
+    {
+      colored: false,
+      kind: 'bid',
+      css: {
+        color: '$text',
+      },
+    },
   ],
+  defaultVariants: {
+    colored: false,
+  },
+});
+
+const BookItemDepth = styled(animated.div, {
+  height: '100%',
+  width: '100%',
+  position: 'absolute',
+  zIndex: 0,
+  variants: {
+    kind: {
+      ask: {
+        backgroundColor: '$bgRed',
+      },
+      bid: {
+        backgroundColor: '$bgGreen',
+        '@bp1': {
+          left: 0,
+        },
+      },
+    },
+  },
 });
