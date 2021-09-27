@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 
-const hasFocus = () => typeof document !== 'undefined' && document.hasFocus();
-
 export const useWindowFocus = () => {
   const [focused, setFocused] = useState<boolean>(true);
 
   useEffect(() => {
-    // setFocused(hasFocus());
-
     const onFocus = () => setFocused(true);
     const onBlur = () => setFocused(false);
 

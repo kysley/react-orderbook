@@ -10,6 +10,20 @@ type BookItemProps = {
   highest: number;
 };
 
+/*
+  Another option for rendering the depth bar
+  here would be using translateX: depth%
+  I ran into orientation issues using this method though,
+  since you translate by +depth and -depth depending on if
+  youre rendering a bid or ask respectively.
+
+  The performance difference seems negligible during
+  benchmarking, so i went with the easier approach.
+
+  I also added the translateZ "hack" to try to offload the
+  rendering to the gpu
+*/
+
 export const BookItem: React.FunctionComponent<BookItemProps> = ({
   kind,
   data,

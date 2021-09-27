@@ -68,6 +68,7 @@ export const useOrderBookSocket = () => {
   const bookCache = useRef<OrderBookStateAction | null>(null);
   const didMount = useRef<boolean>(false);
 
+  // If the socket is currently connected & the user leaves the tab
   useEffect(() => {
     if (tabFocus !== undefined && !tabFocus && socketState === 1) {
       console.info('[Focus lost] -> closing socket');
@@ -75,7 +76,7 @@ export const useOrderBookSocket = () => {
     }
   }, [tabFocus, socketState, closeSocket]);
 
-  const flushBookCache = () => {
+  const flushBookCache = useCallback(() => {
     if (socket.OPEN) {
       if (bookCache.current) {
         updateState(bookCache.current);
@@ -84,7 +85,7 @@ export const useOrderBookSocket = () => {
     } else {
       bookCache.current = null;
     }
-  };
+  }, [socket.OPEN, updateState]);
 
   useInterval(flushBookCache, refreshInterval, true);
 
@@ -101,6 +102,13 @@ export const useOrderBookSocket = () => {
     };
   }, [socket, subMessage]);
 
+  // Fire off our (un)subscribe messages
+  // when the contract changes. We don't
+  // want this to fire on the first render ofc
+  // so we protect it with a didMount boolean
+
+  // We also purposely exclude `socket` from the dep array
+  // since we dont want this to run when that reference changes
   useEffect(() => {
     if (didMount.current) {
       bookCache.current = null;
