@@ -1,22 +1,18 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useInterval } from 'rooks';
 
 import {
+  debugIntervalAtom,
+  OrderBookStateAction,
   subscribeMessageAtom,
   unsubscribeMessageAtom,
-  updateAsksAtom,
-  updateBidsAtom,
+  updateOrderBookState,
 } from '../state';
-import { CF_WSS } from '../utils/websocket';
+import { CF_WSS } from '../utils/constants';
 import { useWindowFocus } from './useWindowFocus';
+import { feedWorker } from '../utils/feed-worker';
+import type { EventMessage } from '../utils/feed.worker';
 
 export enum SOCKET_STATE {
   DISCONNECTED = 0,
@@ -26,7 +22,7 @@ export enum SOCKET_STATE {
 // Returning this from a function in setState would cause 2 connections to be created
 export const DEFAULT_SOCKET_STATE = new WebSocket(CF_WSS);
 
-export const useWebSocketS = () => {
+export const useWebSocket = () => {
   const [socket, setSocket] = useState<WebSocket>(DEFAULT_SOCKET_STATE);
   const [socketState, setSocketState] = useState<SOCKET_STATE>(1);
 
@@ -60,15 +56,16 @@ export const useWebSocketS = () => {
 };
 
 export const useOrderBookSocket = () => {
-  const { socket, closeSocket, restartSocket, socketState } = useWebSocketS();
+  const { socket, closeSocket, restartSocket, socketState } = useWebSocket();
   const tabFocus = useWindowFocus();
 
   const subMessage = useAtomValue(subscribeMessageAtom);
   const unsubMessage = useAtomValue(unsubscribeMessageAtom);
+  const refreshInterval = useAtomValue(debugIntervalAtom);
 
-  const updateBids = useUpdateAtom(updateBidsAtom);
-  const updateAsks = useUpdateAtom(updateAsksAtom);
+  const updateState = useUpdateAtom(updateOrderBookState);
 
+  const bookCache = useRef<OrderBookStateAction | null>(null);
   const didMount = useRef<boolean>(false);
 
   useEffect(() => {
@@ -76,34 +73,38 @@ export const useOrderBookSocket = () => {
       console.info('[Focus lost] -> closing socket');
       closeSocket();
     }
-  }, [tabFocus, socketState]);
+  }, [tabFocus, socketState, closeSocket]);
+
+  const flushBookCache = () => {
+    if (socket.OPEN) {
+      if (bookCache.current) {
+        updateState(bookCache.current);
+        bookCache.current = null;
+      }
+    } else {
+      bookCache.current = null;
+    }
+  };
+
+  useInterval(flushBookCache, refreshInterval, true);
 
   useEffect(() => {
     socket.onopen = () => {
       console.info('[Socket open] -> sending subscription message');
       socket.send(subMessage);
     };
-    let amt = 0;
-    socket.onmessage = (e) => {
-      if (amt < 1500) {
-        const jsonData = JSON.parse(e.data);
-
-        // Knowing that the snapshot message is the same format as a
-        // delta, i dont see why we would need to handle the
-        // cases individually
-        if (jsonData?.bids?.length > 0) {
-          updateBids(jsonData.bids);
-        }
-        if (jsonData?.asks?.length > 0) {
-          updateAsks(jsonData.asks);
-        }
-      }
-      amt++;
+    socket.onmessage = (e: MessageEvent<EventMessage>) => {
+      feedWorker.postMessage(e.data);
+      feedWorker.onmessage = (d) => {
+        bookCache.current = d.data as OrderBookStateAction;
+      };
     };
-  }, [socket]);
+  }, [socket, subMessage]);
 
   useEffect(() => {
     if (didMount.current) {
+      bookCache.current = null;
+
       socket.send(unsubMessage);
       socket.send(subMessage);
     } else {
@@ -118,7 +119,7 @@ export const useOrderBookSocket = () => {
 };
 
 /*
-  My initial implementation of a socket hook system was to provide a WebSocket singleton
+  My initial implementation of a socket hook was to provide a WebSocket singleton
   through context + ref.
 
   This approach is nice because its rerender frieldly with the ws being in a ref, but that makes
