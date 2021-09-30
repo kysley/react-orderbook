@@ -1,25 +1,18 @@
-# New Project
+# react-orderbook
 
-> ✨ Bootstrapped with Create Snowpack App (CSA).
+Check it out here 👉 [react-orderbook.netlify.app](react-orderbook.netlify.app)
+# Performance Considerations
+Due to the rapid message rate from our websocket, all of the orderbook computations have been offloaded to a Web Worker. The Worker will parse the message, order the delta's present, and post a message back to the main thread for the UI to update.
 
-## Available Scripts
+The depth bars are also rendered with performance in mind by using rAF and offloading what little compositioning to the gpu by using translateZ.
+## Running locally
 
-### npm start
+### yarn start
 
 Runs the app in the development mode.
 Open http://localhost:8080 to view it in the browser.
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
-
-### npm run build
+### yarn build
 
 Builds a static copy of your site to the `build/` folder.
 Your app is ready to be deployed!
-
-**For the best production performance:** Add a build bundler plugin like "@snowpack/plugin-webpack" to your `snowpack.config.mjs` config file.
-
-### npm test
-
-Launches the application test runner.
-Run with the `--watch` flag (`npm test -- --watch`) to run in interactive watch mode.
