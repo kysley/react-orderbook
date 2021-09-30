@@ -13,7 +13,6 @@ export type EventMessage = {
   numLevels?: number;
   event?: 'subscribed' | 'unsubscribed' | undefined;
 };
-
 class OrderBookController {
   bids: OrderBookData = [];
   asks: OrderBookData = [];
@@ -54,13 +53,18 @@ class OrderBookController {
 
     const spread = {
       value: Number(Math.abs(firstBid - firstAsk).toFixed(1)),
-      percent: Number((100 - (firstBid / firstAsk) * 100).toFixed(2)),
+      percent: Number(Math.abs(100 - (firstBid / firstAsk) * 100).toFixed(2)),
     };
     this.spread = spread;
     return this;
   }
 
   processBids(incomingBids: OrderBookAction): OrderBookData {
+    if (!Array.isArray(incomingBids)) {
+      throw new Error(
+        `Unrecognized bid data format, expected array, got ${typeof incomingBids}`,
+      );
+    }
     const nextBids: Record<string, number> = Object.fromEntries(this.bids);
 
     incomingBids.forEach((bid) => {
@@ -100,6 +104,11 @@ class OrderBookController {
   }
 
   processAsks(incomingAsks: OrderBookAction): OrderBookData {
+    if (!Array.isArray(incomingAsks)) {
+      throw new Error(
+        `Unrecognized bid data format, expected array, got ${typeof incomingAsks}`,
+      );
+    }
     const nextAsks: Record<string, number> = Object.fromEntries(this.asks);
 
     incomingAsks.forEach((ask) => {
@@ -128,11 +137,8 @@ class OrderBookController {
       const [price, size] = ask;
       const numericPrice = Number(price);
       prevTotal += size;
-      if (idx === 0) {
-        return [numericPrice, size, size];
-      } else {
-        return [numericPrice, size, prevTotal];
-      }
+
+      return [numericPrice, size, prevTotal];
     });
     return asksWithTotal;
   }

@@ -119,4 +119,3 @@ const OrderBookColumns = styled('div', {
 
 const COLUMN_NAMES = ['total', 'size', 'price'];
 const COLUMN_NAMES_REVERSE = [...COLUMN_NAMES].reverse();
-console.log(COLUMN_NAMES_REVERSE);

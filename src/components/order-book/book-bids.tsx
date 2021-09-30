@@ -16,7 +16,7 @@ export const BookBids = () => {
           data={bid}
           kind="bid"
           key={`bid-${bid[0]}`}
-          highest={highest}
+          width={`${(bid[2] / highest) * 100}%`}
         />
       ))}
     </BookBidsContainer>

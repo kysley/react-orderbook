@@ -80,11 +80,9 @@ export const useOrderBookSocket = () => {
     if (socket.OPEN) {
       if (bookCache.current) {
         updateState(bookCache.current);
-        bookCache.current = null;
       }
-    } else {
-      bookCache.current = null;
     }
+    bookCache.current = null;
   }, [socket.OPEN, updateState]);
 
   useInterval(flushBookCache, refreshInterval, true);

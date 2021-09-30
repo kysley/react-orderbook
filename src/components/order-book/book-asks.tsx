@@ -16,7 +16,7 @@ export const BookAsks = () => {
           data={ask}
           kind="ask"
           key={`ask-${ask[0]}`}
-          highest={highest}
+          width={`${(ask[2] / highest) * 100}%`}
         />
       ))}
     </BookAsksContainer>

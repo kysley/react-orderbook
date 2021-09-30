@@ -7,7 +7,7 @@ import { styled } from '../../utils/stitches.conf';
 type BookItemProps = {
   kind: 'bid' | 'ask';
   data: OrderBookItem;
-  highest: number;
+  width: string;
 };
 
 /*
@@ -27,24 +27,18 @@ type BookItemProps = {
 export const BookItem: React.FunctionComponent<BookItemProps> = ({
   kind,
   data,
-  highest,
+  width,
 }) => {
   return (
     <BookItemContainer flipped={kind === 'bid'}>
-      <BookItemWrapper colored kind={kind}>
-        <span>
-          {data[0].toLocaleString('en-us', { minimumFractionDigits: 2 })}
-        </span>
-      </BookItemWrapper>
-      <BookItemWrapper kind={kind}>
-        <span>{data[1].toLocaleString('en-us')}</span>
-      </BookItemWrapper>
-      <BookItemWrapper kind={kind}>
-        <span>{data[2].toLocaleString('en-us')}</span>
-      </BookItemWrapper>
+      <BookItemSpan colored kind={kind}>
+        {data[0].toLocaleString('en-us', { minimumFractionDigits: 2 })}
+      </BookItemSpan>
+      <BookItemSpan kind={kind}>{data[1].toLocaleString('en-us')}</BookItemSpan>
+      <BookItemSpan kind={kind}>{data[2].toLocaleString('en-us')}</BookItemSpan>
       <BookItemDepth
         style={{
-          width: `${(data[2] / highest) * 100}%`,
+          width,
           translateZ: 0,
         }}
         kind={kind}
@@ -71,7 +65,7 @@ const BookItemContainer = styled('div', {
   },
 });
 
-const BookItemWrapper = styled('div', {
+const BookItemSpan = styled('span', {
   textAlign: 'right',
   width: '100%',
   zIndex: 1,
@@ -119,6 +113,7 @@ const BookItemDepth = styled(animated.div, {
   width: '100%',
   position: 'absolute',
   zIndex: 0,
+
   variants: {
     kind: {
       ask: {
