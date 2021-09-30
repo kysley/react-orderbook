@@ -93,11 +93,8 @@ class OrderBookController {
       const [price, size] = bid;
       const numericPrice = Number(price);
       prevTotal += size;
-      if (idx === 0) {
-        return [numericPrice, size, size];
-      } else {
-        return [numericPrice, size, prevTotal];
-      }
+
+      return [numericPrice, size, prevTotal];
     });
 
     return bidsWithTotal;
